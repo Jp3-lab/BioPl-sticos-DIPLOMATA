@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>BIO26 | Bioplásticos</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+
+        :root{
+            --verde-claro:#dffff1;
+            --verde-neon:#00ff99;
+            --verde-medio:#56b887;
+            --verde-escuro:#34785b;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        html,body{
+
+            overflow-x:hidden;
+
+            color:white;
+
+            font-family:'Space Grotesk',sans-serif;
+
+            background:
+
+            radial-gradient(
+            circle at top,
+            rgba(180,255,220,0.55) 0%,
+            rgba(120,255,180,0.18) 20%,
+            transparent 40%),
+
+            linear-gradient(
+            to bottom,
+            #6ecf9f 0%,
+            #56b887 30%,
+            #3f916b 65%,
+            #34785b 100%);
+        }
+
+        #canvas-container{
+            position:fixed;
+            inset:0;
+            z-index:1;
+        }
+
+        section{
+
+            position:relative;
+
+            z-index:2;
+
+            min-height:100vh;
+
+            display:flex;
+
+            flex-direction:column;
+
+            justify-content:center;
+
+            padding:0 10%;
+
+            pointer-events:none;
+        }
+
+        .alinhar-direita{
+            align-items:flex-end;
+            text-align:right;
+        }
+
+        .alinhar-centro{
+            align-items:center;
+            text-align:center;
+        }
+
+        .conteudo-card{
+            max-width:650px;
+            pointer-events:auto;
+        }
+
+        .titulo-secao{
+
+            font-size:clamp(2.8rem,5vw,6rem);
+
+            line-height:0.95;
+
+            margin-bottom:22px;
+
+            text-transform:uppercase;
+
+            text-shadow:
+            0 0 15px rgba(120,255,180,0.35),
+            0 0 35px rgba(120,255,180,0.18);
+        }
+
+        .highlight{
+            color:var(--verde-neon);
+        }
+
+        .descricao{
+
+            color:#f3fff9;
+
+            font-size:1.15rem;
+
+            line-height:1.8;
+
+            text-shadow:
+            0 0 10px rgba(0,0,0,0.12);
+        }
+
+        .texto-fundo{
+
+            position:absolute;
+
+            font-family:'Archivo Black',sans-serif;
+
+            font-size:clamp(5rem,14vw,13rem);
+
+            line-height:0.8;
+
+            color:transparent;
+
+            -webkit-text-stroke:
+            1px rgba(255,255,255,0.18);
+
+            z-index:-1;
+
+            user-select:none;
+        }
+
+        /* ========================= */
+        /* CAIXAS */
+        /* ========================= */
+
+        .container-caixas{
+
+            display:flex;
+
+            gap:30px;
+
+            flex-wrap:wrap;
+
+            justify-content:center;
+
+            margin-top:50px;
+
+            width:100%;
+        }
+
+        .caixa{
+
+            width:320px;
+
+            min-height:280px;
+
+            background:rgba(255,255,255,0.12);
+
+            border:1px solid rgba(255,255,255,0.2);
+
+            backdrop-filter:blur(12px);
+
+            border-radius:28px;
+
+            padding:30px;
+
+            box-shadow:
+            0 0 30px rgba(0,255,153,0.18);
+
+            transition:0.4s;
+
+            pointer-events:auto;
+        }
+
+        .caixa:hover{
+
+            transform:translateY(-10px);
+
+            box-shadow:
+            0 0 45px rgba(0,255,153,0.35);
+        }
+
+        .caixa h2{
+
+            font-size:1.6rem;
+
+            margin-bottom:20px;
+
+            color:#dffff1;
+        }
+
+        .caixa p{
+
+            color:#f3fff9;
+
+            line-height:1.8;
+        }
+
+        /* ========================= */
+        /* DESENVOLVEDOR */
+        /* ========================= */
+
+        .desenvolvedor{
+
+            margin-top:50px;
+
+            padding:18px 30px;
+
+            border-radius:20px;
+
+            background:rgba(255,255,255,0.10);
+
+            border:1px solid rgba(255,255,255,0.15);
+
+            backdrop-filter:blur(10px);
+
+            box-shadow:
+            0 0 25px rgba(0,255,153,0.15);
+
+            pointer-events:auto;
+        }
+
+        .desenvolvedor p{
+
+            font-size:1rem;
+
+            color:#f3fff9;
+
+            letter-spacing:1px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div id="canvas-container"></div>
+
+<!-- HERO -->
+
+<section class="alinhar-centro">
+
+    <div class="texto-fundo" style="top:25%;">
+        BIO26
+    </div>
+
+    <div class="conteudo-card">
+
+        <h1 class="titulo-secao">
+            PLÁSTICO
+            <span class="highlight">
+                REVOLUCIONÁRIO
+            </span>
+        </h1>
+
+        <p class="descricao">
+            Role para explorar nossa exposição interativa sobre bioplásticos e sustentabilidade.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- SEÇÃO 2 -->
+
+<section class="alinhar-direita">
+
+    <div class="texto-fundo" style="left:5%; top:30%;">
+        CRISIS
+    </div>
+
+    <div class="conteudo-card" id="gatilho-s2">
+
+        <h2 class="titulo-secao">
+            O CUSTO DO
+            <span class="highlight">
+                PETRÓLEO
+            </span>
+        </h2>
+
+        <p class="descricao">
+            O plástico tradicional leva centenas de anos para se decompor e gera impactos ambientais graves.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- SEÇÃO 3 -->
+
+<section>
+
+    <div class="texto-fundo" style="right:5%; top:35%;">
+        ORIGIN
+    </div>
+
+    <div class="conteudo-card" id="gatilho-s3">
+
+        <h2 class="titulo-secao">
+            FONTES
+            <span class="highlight">
+                RENOVÁVEIS
+            </span>
+        </h2>
+
+        <p class="descricao">
+            O bioplástico utiliza recursos que não geram impactos ambientais graves como  amido de milho, vinagre e plásticos reciclados.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- SEÇÃO 4 -->
+
+<section class="alinhar-direita">
+
+    <div class="texto-fundo" style="left:10%; top:25%;">
+        FUTURE
+    </div>
+
+    <div class="conteudo-card" id="gatilho-s4">
+
+        <h2 class="titulo-secao">
+            ECONOMIA
+            <span class="highlight">
+                CIRCULAR
+            </span>
+        </h2>
+
+        <p class="descricao">
+            Os bioplásticos podem retornar ao ciclo produtivo ou serem compostados com segurança.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- FINAL -->
+
+<section class="alinhar-centro">
+
+    <div class="texto-fundo" style="top:30%;">
+        ECOSYSTEM
+    </div>
+
+    <div class="conteudo-card" id="gatilho-s5">
+
+        <h2 class="titulo-secao">
+            VISITE NOSSA
+            <span class="highlight">
+                BANCADA
+            </span>
+        </h2>
+
+        <p class="descricao">
+            Conheça nosso experimento prático na feira de ciências.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- CAIXAS -->
+
+<section class="alinhar-centro">
+
+    <div class="texto-fundo" style="top:20%;">
+        INFO
+    </div>
+
+    <div class="container-caixas">
+
+        <div class="caixa">
+
+            <h2>
+                ELABORAÇÃO
+            </h2>
+
+            <p>
+            O projeto foi desenvolvido pelos alunos do 1° ANO B do ENSINO MÉDIO:Juan,Davi,Fabricio,Gabriela
+            Guilherme,Felippe,Fillipe 
+            </p>
+
+        </div>
+
+        <div class="caixa">
+
+            <h2>
+                SUSTENTABILIDADE
+            </h2>
+
+            <p>
+              "O LIXO QUE IGNORAMOS HOJE PODE SER O PROBLEMA DO AMANHÃ"
+            </p>
+
+        </div>
+
+        <div class="caixa">
+
+            <h2>
+                FUTURO
+            </h2>
+
+            <p>
+               "CADA ESCOLHA SUSTENTÁVEL DE HOJE DEFINE O PLANETA EM QUE VIVEREMOS AMANHÃ"
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- CRÉDITOS -->
+
+<section class="alinhar-centro">
+
+    <div class="texto-fundo" style="top:25%;">
+        CREDITS
+    </div>
+
+    <div class="container-caixas">
+
+        <!-- IDEALIZADOR -->
+
+        <div class="caixa">
+
+            <h2>
+                IDEALIZADOR
+            </h2>
+
+            <p>
+                Projeto idealizado e organizado por
+                <span class="highlight">RAMÓN SCARPEL</span>,
+                com foco em sustentabilidade,
+                inovação e conscientização ambiental
+                através dos bioplásticos.
+            </p>
+
+        </div>
+
+        <!-- PARTICIPANTES -->
+
+        <div class="caixa">
+
+            <h2>
+               CONCLUSÃO 
+            </h2>
+
+            <p>
+                FAZER PEQUENAS AÇÕES HOJE,PRESERVA A NOSSA NATUREZA DO AMANHÃ
+                FAÇA PARTE DA MUDANÇA QUE PODEMOS REALIZAR,RECICLE,REUTILIZE
+                VAMOS PRESERVAR A NOSSA NATUREZA QUE TANTO AMAMOS!
+            </p>
+
+        </div>
+
+        <!-- AGRADECIMENTOS -->
+
+        <div class="caixa">
+
+            <h2>
+                AGRADECIMENTOS
+            </h2>
+
+            <p>
+                Agradecemos aos professores 
+                ao DIPLOMATAe a todos
+                que apoiaram nosso projeto
+                durante a feira de ciências.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- DESENVOLVEDOR -->
+
+    <div class="desenvolvedor">
+
+        <p>
+            Desenvolvido por
+            <span class="highlight">
+                Juan
+            </span>
+        </p>
+
+    </div>
+
+</section>
+
+<script>
+
+    // ====================================
+    // CENA
+    // ====================================
+
+    const scene = new THREE.Scene();
+
+    scene.background = new THREE.Color(0x56b887);
+
+    // ====================================
+    // CAMERA
+    // ====================================
+
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+
+    camera.position.z = 7;
+
+    // ====================================
+    // RENDERER
+    // ====================================
+
+    const renderer = new THREE.WebGLRenderer({
+        antialias:true,
+        alpha:true
+    });
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+    renderer.physicallyCorrectLights = true;
+
+    renderer.outputEncoding =
+        THREE.sRGBEncoding;
+
+    renderer.toneMapping =
+        THREE.ACESFilmicToneMapping;
+
+    renderer.toneMappingExposure = 2.3;
+
+    document
+        .getElementById("canvas-container")
+        .appendChild(renderer.domElement);
+
+    // ====================================
+    // GARRAFA
+    // ====================================
+
+    const mesh = new THREE.Group();
+
+    const bottleMaterial =
+        new THREE.MeshPhysicalMaterial({
+
+        color:0xcffff0,
+
+        transmission:1,
+
+        transparent:true,
+
+        opacity:1,
+
+        roughness:0.01,
+
+        metalness:0.18,
+
+        thickness:1.5,
+
+        clearcoat:1,
+
+        clearcoatRoughness:0,
+
+        ior:1.52,
+
+        emissive:0x00ff99,
+
+        emissiveIntensity:0.5,
+
+        reflectivity:1
+
+    });
+
+    const points = [];
+
+    points.push(new THREE.Vector2(0.0,-2.0));
+    points.push(new THREE.Vector2(0.9,-2.0));
+    points.push(new THREE.Vector2(1.0,-1.2));
+    points.push(new THREE.Vector2(1.0,0.2));
+    points.push(new THREE.Vector2(0.8,1.0));
+    points.push(new THREE.Vector2(0.45,1.8));
+    points.push(new THREE.Vector2(0.35,2.5));
+    points.push(new THREE.Vector2(0.32,3.0));
+    points.push(new THREE.Vector2(0.42,3.2));
+
+    const bottleGeometry =
+        new THREE.LatheGeometry(
+            points,
+            128
+        );
+
+    const bottle =
+        new THREE.Mesh(
+            bottleGeometry,
+            bottleMaterial
+        );
+
+    mesh.add(bottle);
+
+    mesh.position.y = -0.5;
+
+    scene.add(mesh);
+
+    // ====================================
+    // CHÃO
+    // ====================================
+
+    const floorGeometry =
+        new THREE.CircleGeometry(8,64);
+
+    const floorMaterial =
+        new THREE.MeshStandardMaterial({
+
+        color:0x6ecf9f,
+
+        roughness:0.08,
+
+        metalness:1
+
+    });
+
+    const floor =
+        new THREE.Mesh(
+            floorGeometry,
+            floorMaterial
+        );
+
+    floor.rotation.x = -Math.PI/2;
+
+    floor.position.y = -2.5;
+
+    scene.add(floor);
+
+    // ====================================
+    // ILUMINAÇÃO
+    // ====================================
+
+    const ambient =
+        new THREE.AmbientLight(
+            0xe8fff6,
+            2.8
+        );
+
+    scene.add(ambient);
+
+    const frontLight =
+        new THREE.DirectionalLight(
+            0xffffff,
+            2.5
+        );
+
+    frontLight.position.set(5,6,5);
+
+    scene.add(frontLight);
+
+    const greenLightLeft =
+        new THREE.PointLight(
+            0x00ff99,
+            40,
+            70
+        );
+
+    greenLightLeft.position.set(
+        -5,
+        2,
+        5
+    );
+
+    scene.add(greenLightLeft);
+
+    const greenLightRight =
+        new THREE.PointLight(
+            0x66ffcc,
+            35,
+            60
+        );
+
+    greenLightRight.position.set(
+        5,
+        1,
+        4
+    );
+
+    scene.add(greenLightRight);
+
+    const topGlow =
+        new THREE.PointLight(
+            0xdffff1,
+            20,
+            50
+        );
+
+    topGlow.position.set(
+        0,
+        8,
+        0
+    );
+
+    scene.add(topGlow);
+
+    const rimLight =
+        new THREE.PointLight(
+            0xffffff,
+            10,
+            50
+        );
+
+    rimLight.position.set(
+        0,
+        1,
+        -6
+    );
+
+    scene.add(rimLight);
+
+    // ====================================
+    // ANIMAÇÃO
+    // ====================================
+
+    function animate(){
+
+        requestAnimationFrame(animate);
+
+        mesh.rotation.y += 0.003;
+
+        renderer.render(scene,camera);
+    }
+
+    animate();
+
+    // ====================================
+    // GSAP
+    // ====================================
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to(mesh.position,{
+        x:-2,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s2",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    gsap.to(mesh.rotation,{
+        z:0.2,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s2",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    gsap.to(mesh.position,{
+        x:2,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s3",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    gsap.to(mesh.rotation,{
+        x:0.8,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s3",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    gsap.to(mesh.position,{
+        x:-2,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s4",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    gsap.to(mesh.rotation,{
+        y:2,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s4",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    gsap.to(mesh.scale,{
+
+        x:1.4,
+        y:1.4,
+        z:1.4,
+
+        scrollTrigger:{
+            trigger:"#gatilho-s5",
+            start:"top bottom",
+            end:"top center",
+            scrub:1
+        }
+    });
+
+    // ====================================
+    // RESPONSIVO
+    // ====================================
+
+    window.addEventListener(
+        "resize",
+        ()=>{
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    });
+
+</script>
+
+</body>
+</html>
